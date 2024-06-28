@@ -42,7 +42,9 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
 
     @Override
     public void onBindViewHolder(@NonNull VideoViewHolder holder, int position) {
+
         int uid = uids.get(position);
+
         SurfaceView remoteSurface = new SurfaceView(context);
         remoteSurface.setZOrderMediaOverlay(true);
 

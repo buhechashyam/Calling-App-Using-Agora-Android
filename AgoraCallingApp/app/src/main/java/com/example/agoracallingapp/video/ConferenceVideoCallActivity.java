@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceView;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -15,7 +14,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.example.agoracallingapp.R;
 import com.example.agoracallingapp.databinding.ActivityConferenceVideoCallBinding;
 
 import java.util.ArrayList;
@@ -23,23 +21,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.agora.rtc2.ChannelMediaOptions;
-import io.agora.rtc2.ClientRoleOptions;
 import io.agora.rtc2.Constants;
 import io.agora.rtc2.IRtcEngineEventHandler;
 import io.agora.rtc2.RtcEngine;
 import io.agora.rtc2.RtcEngineConfig;
 import io.agora.rtc2.video.VideoCanvas;
-import io.agora.utils2.internal.RtcSystemEventListener;
 
 public class ConferenceVideoCallActivity extends AppCompatActivity {
 
     ActivityConferenceVideoCallBinding binding;
     private RtcEngine rtcEngine;
     private String appID = "4e7e978a48f04e15b507bd1f5bd96c56";
-    private String channelName = "conference call";
-    private String token = "007eJxTYHgh4RjZtzL+fu31rasPuUh9ConYd8lK55BPcUC1oMu3FgsFBpNU81RLc4tEE4s0A5NUQ9MkUwPzpBTDNNOkFEuzZFOzQM7atIZARobUDkUGRigE8fkZkvPz0lKLUvOSUxWSE3NyGBgAu7Uisw==";
+    private String channelName = "calling app";
+    private String token = "007eJxTYDDbNidW2qvvU/OaGXt1+de5z/LjKHt1bck9BvV/t36J7rJWYDBJNU+1NLdINLFIMzBJNTRNMjUwT0oxTDNNSrE0SzY1e9ZZl9YQyMiQPH8fKyMDBIL4XAxl+ZnJqQrJiTk5DAwAU3Ui2Q==";
     private ArrayList<Integer> uids = new ArrayList<>(); // all channel participant uid
-    private Map<Integer,String> mParticipants = new HashMap<>();
+    private Map<Integer, String> mParticipants = new HashMap<>();
     private int localUId = -1; // local user uid
     private String hostName = "Shyam";
     private boolean isJoined = false;
@@ -55,8 +51,8 @@ public class ConferenceVideoCallActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     localUId = uid;
-                    mParticipants.put(uid,hostName);
-                    isJoined =true;
+                    mParticipants.put(uid, hostName);
+                    isJoined = true;
                 }
             });
         }
@@ -76,19 +72,15 @@ public class ConferenceVideoCallActivity extends AppCompatActivity {
                     }
                 }
             });
-
         }
 
         @Override
         public void onUserOffline(int uid, int reason) {
-            super.onUserOffline(uid, reason);
-
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    uids.remove(uid);
+                    uids.remove(Integer.valueOf(uid));
                     mParticipants.remove(uid);
-
                     videoAdapter.notifyDataSetChanged();
                 }
             });
@@ -102,16 +94,21 @@ public class ConferenceVideoCallActivity extends AppCompatActivity {
         binding = ActivityConferenceVideoCallBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        if (checkPermissions()){
+        if (checkPermissions()) {
             setUpVideoSdk();
             setUpRemoteUser();
-        }else {
+        } else {
             ActivityCompat.requestPermissions(ConferenceVideoCallActivity.this, getAllPermissions(), 100);
         }
         //Join a call
-        binding.btnJoinCall.setOnClickListener(v -> joinCall());
+        binding.btnJoinCall.setOnClickListener(v -> {
+            binding.btnJoinCall.setEnabled(false);
+            joinCall();
+        });
         //Leave a call
-        binding.btnLeaveCall.setOnClickListener(v -> leaveCall());
+        binding.btnLeaveCall.setOnClickListener(v -> {
+            leaveCall();
+        });
         //Switch camara
         binding.btnSwitchCamera.setOnClickListener(v -> switchCamara());
 
@@ -119,8 +116,8 @@ public class ConferenceVideoCallActivity extends AppCompatActivity {
     }
 
     private void setUpRemoteUser() {
-        binding.rvRemoteUsers.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
-        videoAdapter = new VideoAdapter(uids,mParticipants,rtcEngine,ConferenceVideoCallActivity.this);
+        binding.rvRemoteUsers.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        videoAdapter = new VideoAdapter(uids, mParticipants, rtcEngine, ConferenceVideoCallActivity.this);
         binding.rvRemoteUsers.setAdapter(videoAdapter);
     }
 
@@ -129,7 +126,7 @@ public class ConferenceVideoCallActivity extends AppCompatActivity {
             @Override
             public void run() {
                 rtcEngine.switchCamera();
-                showMessage("Switch a Camara");
+                showMessage("Switch a Camara"); 
             }
         });
     }
@@ -140,9 +137,12 @@ public class ConferenceVideoCallActivity extends AppCompatActivity {
             public void run() {
                 rtcEngine.stopPreview();
                 rtcEngine.leaveChannel();
+
+                binding.frameLocalUser.removeAllViews();
                 binding.imgLocalUser.setVisibility(View.VISIBLE);
                 binding.frameLocalUser.setVisibility(View.GONE);
 
+                isJoined = false;
                 uids.clear();
                 mParticipants.clear();
                 videoAdapter.notifyDataSetChanged();
@@ -162,7 +162,7 @@ public class ConferenceVideoCallActivity extends AppCompatActivity {
         options.clientRoleType = Constants.CLIENT_ROLE_BROADCASTER;
         options.channelProfile = Constants.CHANNEL_PROFILE_COMMUNICATION;
 
-        rtcEngine.joinChannel(token,channelName,0,options);
+        rtcEngine.joinChannel(token, channelName, 0, options);
         showMessage("Join call");
 
     }
@@ -176,7 +176,7 @@ public class ConferenceVideoCallActivity extends AppCompatActivity {
         localSurface.setZOrderMediaOverlay(true);
         binding.frameLocalUser.addView(localSurface);
 
-        rtcEngine.setupLocalVideo(new VideoCanvas(localSurface,VideoCanvas.RENDER_MODE_HIDDEN,0));
+        rtcEngine.setupLocalVideo(new VideoCanvas(localSurface, VideoCanvas.RENDER_MODE_HIDDEN, 0));
     }
 
     private void setUpVideoSdk() {
@@ -188,8 +188,8 @@ public class ConferenceVideoCallActivity extends AppCompatActivity {
 
             //initialize RtcEngine
             rtcEngine = RtcEngine.create(config);
-        }catch (Exception e){
-            showMessage("Error : "+ e);
+        } catch (Exception e) {
+            showMessage("Error : " + e);
         }
     }
 
@@ -224,7 +224,7 @@ public class ConferenceVideoCallActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if (checkPermissions()){
+        if (checkPermissions()) {
             setUpVideoSdk();
         }
     }

@@ -59,6 +59,7 @@ public class SimpleVideoCallActivity extends AppCompatActivity {
         public void onUserOffline(int uid, int reason) {
             super.onUserOffline(uid, reason);
             showToast("User Offline : " + uid);
+
         }
     };
 

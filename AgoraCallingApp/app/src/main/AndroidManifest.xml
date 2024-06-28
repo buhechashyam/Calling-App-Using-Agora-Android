@@ -28,16 +28,19 @@
         android:theme="@style/Theme.AgoraCallingApp"
         tools:targetApi="31">
         <activity
+            android:name=".voice.SimpleVoiceCallActivity"
+            android:exported="false" />
+        <activity
             android:name=".video.SimpleVideoCallActivity"
             android:exported="false" />
         <activity
-            android:name=".voice.SimpleVoiceCallActivity"
+            android:name=".video.ConferenceVideoCallActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="false" />
         <activity
-            android:name=".video.ConferenceVideoCallActivity"
+            android:name=".voice.ConferenceAudioCallActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

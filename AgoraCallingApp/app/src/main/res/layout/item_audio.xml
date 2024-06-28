@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:elevation="8dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="A"
+            android:textSize="36sp"
+            android:paddingStart="16dp"
+            android:id="@+id/text_remote_user"
+            android:layout_margin="4dp"
+            tools:ignore="RtlSymmetry" />
+
+</com.google.android.material.card.MaterialCardView>
