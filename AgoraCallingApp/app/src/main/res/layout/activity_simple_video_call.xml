@@ -38,6 +38,18 @@
         app:layout_constraintTop_toBottomOf="@id/fragment_local"
         android:layout_marginTop="8dp"/>
 
+    <TextView
+        android:layout_width="0dp"
+        android:maxLines="3"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textAlignment="center"
+        app:layout_constraintStart_toEndOf="@id/btn_join"
+        app:layout_constraintEnd_toStartOf="@id/btn_leave"
+        app:layout_constraintTop_toBottomOf="@id/fragment_local"
+        android:layout_marginTop="16dp"
+        android:id="@+id/text_join_user"/>
+
     <com.google.android.material.button.MaterialButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

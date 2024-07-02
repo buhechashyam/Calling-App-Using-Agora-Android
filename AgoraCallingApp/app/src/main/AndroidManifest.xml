@@ -31,10 +31,10 @@
             android:name=".voice.SimpleVoiceCallActivity"
             android:exported="false" />
         <activity
-            android:name=".video.SimpleVideoCallActivity"
+            android:name=".video.ConferenceVideoCallActivity"
             android:exported="false" />
         <activity
-            android:name=".video.ConferenceVideoCallActivity"
+            android:name=".video.SimpleVideoCallActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

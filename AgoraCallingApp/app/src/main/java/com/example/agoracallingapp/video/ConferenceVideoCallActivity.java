@@ -33,7 +33,7 @@ public class ConferenceVideoCallActivity extends AppCompatActivity {
     private RtcEngine rtcEngine;
     private String appID = "4e7e978a48f04e15b507bd1f5bd96c56";
     private String channelName = "calling app";
-    private String token = "007eJxTYDDbNidW2qvvU/OaGXt1+de5z/LjKHt1bck9BvV/t36J7rJWYDBJNU+1NLdINLFIMzBJNTRNMjUwT0oxTDNNSrE0SzY1e9ZZl9YQyMiQPH8fKyMDBIL4XAxl+ZnJqQrJiTk5DAwAU3Ui2Q==";
+    private String token = "007eJxTYGg1MUxnyRB/4ut+du7yK9vXbbS9oT/vzwnRTH1u3jL97t8KDCap5qmW5haJJhZpBiaphqZJpgbmSSmGaaZJKZZmyaZm3y82pzUEMjJMV01nZmSAQBCfmyE5MScnMy9dIbGggIEBAALnIbU=";
     private ArrayList<Integer> uids = new ArrayList<>(); // all channel participant uid
     private Map<Integer, String> mParticipants = new HashMap<>();
     private int localUId = -1; // local user uid
@@ -76,12 +76,20 @@ public class ConferenceVideoCallActivity extends AppCompatActivity {
 
         @Override
         public void onUserOffline(int uid, int reason) {
+
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     uids.remove(Integer.valueOf(uid));
                     mParticipants.remove(uid);
                     videoAdapter.notifyDataSetChanged();
+                    if (uids.isEmpty()){
+                        binding.frameLocalUser.removeAllViews();
+                        binding.imgLocalUser.setVisibility(View.VISIBLE);
+                        binding.frameLocalUser.setVisibility(View.GONE);
+                        isJoined = false;
+                        binding.btnJoinCall.setEnabled(true);
+                    }
                 }
             });
         }
@@ -147,6 +155,7 @@ public class ConferenceVideoCallActivity extends AppCompatActivity {
                 mParticipants.clear();
                 videoAdapter.notifyDataSetChanged();
                 showMessage("Leave a call");
+                binding.btnJoinCall.setEnabled(true);
 
             }
         });

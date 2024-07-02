@@ -8,18 +8,13 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.example.agoracallingapp.R;
 import com.example.agoracallingapp.databinding.ActivityConferenceAudioCallBinding;
-import com.example.agoracallingapp.video.ConferenceVideoCallActivity;
 
 import java.util.ArrayList;
 
@@ -33,7 +28,7 @@ public class ConferenceAudioCallActivity extends AppCompatActivity {
 
     private String appId = "4e7e978a48f04e15b507bd1f5bd96c56";
     private String mChannelName = "calling app";
-    private String mToken = "007eJxTYDDbNidW2qvvU/OaGXt1+de5z/LjKHt1bck9BvV/t36J7rJWYDBJNU+1NLdINLFIMzBJNTRNMjUwT0oxTDNNSrE0SzY1e9ZZl9YQyMiQPH8fKyMDBIL4XAxl+ZnJqQrJiTk5DAwAU3Ui2Q==";
+    private String mToken = "007eJxTYGg1MUxnyRB/4ut+du7yK9vXbbS9oT/vzwnRTH1u3jL97t8KDCap5qmW5haJJhZpBiaphqZJpgbmSSmGaaZJKZZmyaZm3y82pzUEMjJMV01nZmSAQBCfmyE5MScnMy9dIbGggIEBAALnIbU=";
     RtcEngine rtcEngine;
     AudioAdapter adapter;
     int localUId = 0;
@@ -79,7 +74,13 @@ public class ConferenceAudioCallActivity extends AppCompatActivity {
                 public void run() {
                     mListUIds.remove(Integer.valueOf(uid));
                     adapter.notifyDataSetChanged();
-                    binding.textStatus.setText("User is Offline");
+
+                    if (mListUIds.isEmpty()){
+
+                        rtcEngine.stopPreview();
+                        rtcEngine.leaveChannel();
+                        binding.textStatus.setText("End Call");
+                    }
                 }
             });
 
@@ -96,6 +97,8 @@ public class ConferenceAudioCallActivity extends AppCompatActivity {
         if (checkPermission()){
             initializeVoiceSDK();
             setUpRemoteUsers();
+        }else {
+            ActivityCompat.requestPermissions(ConferenceAudioCallActivity.this, getRequirePermissions(), 100);
         }
 
         binding.btnJoinCall.setOnClickListener(new View.OnClickListener() {
@@ -131,6 +134,7 @@ public class ConferenceAudioCallActivity extends AppCompatActivity {
                 rtcEngine.leaveChannel();
                 mListUIds.clear();
                 adapter.notifyDataSetChanged();
+                binding.textStatus.setText("End Call");
             }
         });
     }
@@ -170,7 +174,6 @@ public class ConferenceAudioCallActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (checkPermission()) {
             initializeVoiceSDK();
-            setUpRemoteUsers();
         }
     }
 
@@ -192,6 +195,12 @@ public class ConferenceAudioCallActivity extends AppCompatActivity {
             throw new RuntimeException(e);
         }
     }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        rtcEngine.leaveChannel();
+    }
+
     private void showMessage(String msg) {
         runOnUiThread(() -> {
             Toast.makeText(ConferenceAudioCallActivity.this, msg, Toast.LENGTH_SHORT).show();

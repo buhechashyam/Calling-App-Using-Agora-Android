@@ -32,33 +32,58 @@ public class SimpleVideoCallActivity extends AppCompatActivity {
     SurfaceView localSurface;
     int uid = 2; // this local uid, it;s unique for each user. different device different uid
     private String appId = "4e7e978a48f04e15b507bd1f5bd96c56";
-    private String token = "007eJxTYEh3PC6jcMq8tl/m251j/0wTmTg0LWR5d3dPWRTxqs3fIEOBwSTVPNXS3CLRxCLNwCTV0DTJ1MA8KcUwzTQpxdIs2dRMhqkmrSGQkeGktBcDIxSC+BwMyRmJeXmpOYYMDAAJsh27";
-    private String channelName = "channel1";
+    private String token = "007eJxTYGg1MUxnyRB/4ut+du7yK9vXbbS9oT/vzwnRTH1u3jL97t8KDCap5qmW5haJJhZpBiaphqZJpgbmSSmGaaZJKZZmyaZm3y82pzUEMjJMV01nZmSAQBCfmyE5MScnMy9dIbGggIEBAALnIbU=";
+    private String channelName = "calling app";
     boolean isJoined = false;
+    int localuid = 0;
+
 
     private final IRtcEngineEventHandler eventHandler = new IRtcEngineEventHandler() {
+        int remoteUId = 0;
         @Override
         public void onJoinChannelSuccess(String channel, int uid, int elapsed) {
             super.onJoinChannelSuccess(channel, uid, elapsed);
+            localuid = uid;
             showToast("Join Channel Success " + uid);
         }
 
         @Override
         public void onUserJoined(int uid, int elapsed) {
             super.onUserJoined(uid, elapsed);
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    showToast("User join : " + uid);
-                    setUpRemoteVideo(uid);
-                }
-            });
+            if(remoteUId == 0) {
+                remoteUId = uid;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        showToast("User join : " + uid);
+                        binding.textJoinUser.setText(uid + " is Joined");
+                        setUpRemoteVideo(remoteUId);
+                    }
+                });
+            }else {
+                showToast("it is one to one call");
+            }
+
         }
 
         @Override
-        public void onUserOffline(int uid, int reason) {
-            super.onUserOffline(uid, reason);
+        public void onUserOffline(int uid, int reason){
             showToast("User Offline : " + uid);
+            if (remoteUId == uid){
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        rtcEngine.stopPreview();
+                        rtcEngine.leaveChannel();
+                        localSurface.setVisibility(View.GONE);
+                        remoteSurface.setVisibility(View.GONE);
+                        binding.textJoinUser.setText("Call Ended");
+                        remoteUId = 0;
+                    }
+                });
+
+            }
+
 
         }
     };
@@ -78,7 +103,7 @@ public class SimpleVideoCallActivity extends AppCompatActivity {
         FrameLayout container = findViewById(R.id.fragment_local);
         localSurface = new SurfaceView(getBaseContext());
         container.addView(localSurface);
-        rtcEngine.setupLocalVideo(new VideoCanvas(localSurface, VideoCanvas.RENDER_MODE_FIT, uid));
+        rtcEngine.setupLocalVideo(new VideoCanvas(localSurface, VideoCanvas.RENDER_MODE_FIT, 0));
     }
 
     private void setUpVideoSDK() {
@@ -121,6 +146,7 @@ public class SimpleVideoCallActivity extends AppCompatActivity {
         rtcEngine.leaveChannel();
         localSurface.setVisibility(View.GONE);
         remoteSurface.setVisibility(View.GONE);
+        binding.textJoinUser.setText("Call Ended");
     }
 
     private void joinChannel() {

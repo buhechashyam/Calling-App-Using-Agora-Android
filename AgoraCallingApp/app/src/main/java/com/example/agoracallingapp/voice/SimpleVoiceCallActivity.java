@@ -29,8 +29,9 @@ public class SimpleVoiceCallActivity extends AppCompatActivity {
     ActivitySimpleVoiceCallBinding binding;
     private String appId = "4e7e978a48f04e15b507bd1f5bd96c56";
     private String mChannelName = "calling app";
-    private String mToken = "007eJxTYDDbNidW2qvvU/OaGXt1+de5z/LjKHt1bck9BvV/t36J7rJWYDBJNU+1NLdINLFIMzBJNTRNMjUwT0oxTDNNSrE0SzY1e9ZZl9YQyMiQPH8fKyMDBIL4XAxl+ZnJqQrJiTk5DAwAU3Ui2Q==";
+    private String mToken = "007eJxTYGg1MUxnyRB/4ut+du7yK9vXbbS9oT/vzwnRTH1u3jL97t8KDCap5qmW5haJJhZpBiaphqZJpgbmSSmGaaZJKZZmyaZm3y82pzUEMjJMV01nZmSAQBCfmyE5MScnMy9dIbGggIEBAALnIbU=";
     private int localUid = 0;
+    private int remoteId = 0;
     private boolean isJoined = false;
     private RtcEngine rtcEngine;
 
@@ -44,7 +45,7 @@ public class SimpleVoiceCallActivity extends AppCompatActivity {
                     showToast("Join channel successfully");
                     binding.textStatus.setText("Join Channel Successfully");
                     localUid = uid;
-                    isJoined = true;
+
                 }
             });
         }
@@ -56,8 +57,14 @@ public class SimpleVoiceCallActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    userJoin(uid);
-                    showToast("Join user" + uid);
+                   if (isJoined == false) {
+                       showToast("Join user" + uid);
+                       binding.textStatus.setText(localUid + "Join user" + uid);
+                       isJoined = true;
+                   }else {
+                       showToast("one to one call");
+                   }
+
                 }
             });
         }
@@ -76,11 +83,6 @@ public class SimpleVoiceCallActivity extends AppCompatActivity {
         }
 
     };
-
-    private void userJoin(int uid) {
-        binding.textStatus.setText(localUid + " (ME) Connect to " + uid );
-
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
